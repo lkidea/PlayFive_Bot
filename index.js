@@ -30,6 +30,8 @@ const CONFIG = {
     .toLowerCase(),
   chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 60) * 1000,
   ignoreSelfChat: (process.env.IGNORE_SELF_CHAT || 'false').toLowerCase() === 'true',
+  ignoreGuestChat: (process.env.IGNORE_GUEST_CHAT || 'true').toLowerCase() === 'true',
+  
 
   // Solo waiting table monitor settings
   waitThresholdMs: Number(process.env.WAIT_THRESHOLD_SECONDS || 180) * 1000, // 3 minutes
