@@ -232,14 +232,14 @@ async function notifyChatTrigger(nick, text) {
     roleId: CONFIG.chatPingRoleId,
     embeds: [
       {
-        title: '💬 Žádost o notifikaci v hlavním chatu',
-        description: `**${safeNick}:** ${safeText}`,
+        title: 'Somebody wants you to wake up and play!',
+        /*description: `**${safeNick}:** ${safeText}`,
         color: 0x5865f2,
         fields: [
           { name: 'Čas (Praha)', value: pragueTime, inline: true },
           { name: 'Herna', value: `[Vstoupit do herny](${hernaLink})`, inline: true },
         ],
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(),*/
       },
     ],
   });
@@ -259,7 +259,8 @@ async function notifyWaitingTable(table, waitedSeconds) {
     roleId: CONFIG.tablePingRoleId,
     embeds: [
       {
-        title: `🪑 Hráč čeká u stolu #${table.id}`,
+        title: 'Somebody is desperately waiting for an opponent!',
+        /*title: `🪑 Hráč čeká u stolu #${table.id}`,
         color,
         fields: [
           { name: 'Nick', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
@@ -269,7 +270,7 @@ async function notifyWaitingTable(table, waitedSeconds) {
           { name: 'Čeká již', value: `${waitedMin}+ min`, inline: true },
           { name: 'Herna', value: `[Připojit se](${hernaLink})`, inline: true },
         ],
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(),*/
       },
     ],
   });
