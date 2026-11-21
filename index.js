@@ -20,8 +20,8 @@ const CONFIG = {
   webhookChat: (process.env.DISCORD_WEBHOOK_CHAT || '').trim(),
   webhookTable: (process.env.DISCORD_WEBHOOK_TABLE || '').trim(),
   // Optional: Discord Role IDs (digits only) to ping safely
-  chatPingRoleId: (process.env.DISCORD_CHAT_PING_ROLE_ID || '').trim(),
-  tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || '').trim(),
+  chatPingRoleId: (process.env.DISCORD_CHAT_PING_ROLE_ID || '-# <@&1573748305492574382>').trim(),
+  tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || '-# <@&1573748305492574382>').trim(),
 
   // Main chat monitor settings
   chatTrigger: (process.env.CHAT_TRIGGER || 'Discord notif pls')
@@ -265,11 +265,11 @@ async function notifyWaitingTable(table, waitedSeconds) {
         color: 16777215,
         fields: [
           { name: 'Nick: ', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
-          { name: 'Game Type: ', value: table.gamestyle, inline: true },
+          { name: 'Game Type: ', value: table.gamestyle, inline: false },
           { name: 'Time + Fischer: ', value: table.timeControl, inline: true },
-          { name: 'Mode: ', value: ratedLabel, inline: true },
+          { name: 'Mode: ', value: ratedLabel, inline: false },
           { name: 'Waiting already: ', value: `${waitedMin}+ min`, inline: true },
-          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: true },
+          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: false },
         ],
       },
     ],
