@@ -20,8 +20,8 @@ const CONFIG = {
   webhookChat: (process.env.DISCORD_WEBHOOK_CHAT || '').trim(),
   webhookTable: (process.env.DISCORD_WEBHOOK_TABLE || '').trim(),
   // Optional: Discord Role IDs (digits only) to ping safely
-  chatPingRoleId: (process.env.DISCORD_CHAT_PING_ROLE_ID || '1573748305492574382).trim(),
-  tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || '1573748305492574382).trim(),
+  chatPingRoleId: (process.env.DISCORD_CHAT_PING_ROLE_ID || 1573748305492574382).trim(),
+  tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || 1573748305492574382).trim(),
 
   // Main chat monitor settings
   chatTrigger: (process.env.CHAT_TRIGGER || 'Discord notif pls')
