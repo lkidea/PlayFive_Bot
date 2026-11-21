@@ -28,7 +28,7 @@ const CONFIG = {
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase(),
-  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 60) * 1000,
+  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 600) * 1000,
   ignoreSelfChat: (process.env.IGNORE_SELF_CHAT || 'false').toLowerCase() === 'true',
   ignoreGuestChat: (process.env.IGNORE_GUEST_CHAT || 'true').toLowerCase() === 'true',
   
@@ -42,7 +42,7 @@ const CONFIG = {
       .map((s) => s.trim().toLowerCase())
       .filter(Boolean)
   ),
-  includeTeaching: (process.env.INCLUDE_TEACHING || 'true').toLowerCase() === 'true',
+  includeTeaching: (process.env.INCLUDE_TEACHING || 'false').toLowerCase() === 'true',
 
   // Backoff schedule (minutes) when Playfive is offline/shut down.
   // Default: 5m -> 15m -> 30m -> 60m. Set to "60" for strict 1-hour checks.
@@ -779,6 +779,12 @@ function runXmppSession(pepa) {
 
       const normalized = text.replace(/\s+/g, ' ').toLowerCase();
       if (!normalized.includes(CONFIG.chatTrigger)) return;
+
+      //
+      if (CONFIG.ignoreGuestChat && senderNick.toLowerCase().startsWith('guest')) {
+        console.log(`[CHAT] Ignored trigger from guest "${senderNick}".`);
+        return;
+      }
 
       const now = Date.now();
       if (now - state.lastChatAlertAt >= CONFIG.chatCooldownMs) {
