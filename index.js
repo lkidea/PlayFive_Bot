@@ -174,7 +174,7 @@ async function sendDiscordWebhook(url, { content = '', embeds = [], roleId = '' 
     return false;
   }
 
-  const pingPrefix = roleId ? `<@&${roleId}> ` : '';
+  const pingPrefix = roleId ? `-# <@&${roleId}> ` : '';
   const body = {
     content: `${pingPrefix}${content}`.trim() || undefined,
     embeds,
