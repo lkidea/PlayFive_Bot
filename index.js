@@ -264,8 +264,7 @@ async function notifyWaitingTable(table, waitedSeconds) {
         // ${table.id}
         color: 16777215,
         fields: [
-          { name: 'Nick: ', value: '
-            `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
+          { name: 'Nick: ', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
           { name: 'Game Type: ', value: table.gamestyle, inline: true },
           { name: 'Time + Fischer: ', value: table.timeControl, inline: true },
           { name: 'Mode: ', value: ratedLabel, inline: true },
