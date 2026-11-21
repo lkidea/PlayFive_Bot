@@ -167,7 +167,6 @@ server.listen(CONFIG.port, '0.0.0.0', () => {
 function escapeDiscordMd(str) {
   return String(str).replace(/([\\*_~`|>\[\]])/g, '\\$1');
 }
-}
 
 async function sendDiscordWebhook(url, { content = '', embeds = [], roleId = '' }) {
   if (!url) {
@@ -236,7 +235,7 @@ async function notifyChatTrigger(nick, text) {
     embeds: [
       {
         title: 'Somebody wants you to wake up!',
-        description: '-# **${safeNick}:** ${safeText}',
+        description: `-# **${safeNick}:** ${safeText}`,
         color: 1,
         fields: [
           { name: 'Time (Prague): ', value: pragueTime, inline: true },
@@ -265,7 +264,8 @@ async function notifyWaitingTable(table, waitedSeconds) {
         // ${table.id}
         color: 16777215,
         fields: [
-          { name: 'Nick: ', value: '**${escapeDiscordMd(table.soloNick)}**', inline: true },
+          { name: 'Nick: ', value: '
+            `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
           { name: 'Game Type: ', value: table.gamestyle, inline: true },
           { name: 'Time + Fischer: ', value: table.timeControl, inline: true },
           { name: 'Mode: ', value: ratedLabel, inline: true },
