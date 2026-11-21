@@ -165,7 +165,8 @@ server.listen(CONFIG.port, '0.0.0.0', () => {
 // Discord Webhooks (Safe Mentions + Markdown Escape + 429 Retry)
 // ============================================================================
 function escapeDiscordMd(str) {
-  return String(str).replace(/([\\*_~`|>])/g, '\\$1');
+  return String(str).replace(/([\\*_~`|>\[\]])/g, '\\$1');
+}
 }
 
 async function sendDiscordWebhook(url, { content = '', embeds = [], roleId = '' }) {
