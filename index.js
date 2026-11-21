@@ -235,14 +235,13 @@ async function notifyChatTrigger(nick, text) {
     roleId: CONFIG.chatPingRoleId,
     embeds: [
       {
-        title: 'Somebody wants you to wake up and play!',
-        /*description: `**${safeNick}:** ${safeText}`,
-        color: 0x5865f2,
+        title: 'Somebody wants you to wake up!',
+        description: '-# **${safeNick}:** ${safeText}',
+        color: 1,
         fields: [
-          { name: 'Čas (Praha)', value: pragueTime, inline: true },
-          { name: 'Herna', value: `[Vstoupit do herny](${hernaLink})`, inline: true },
+          { name: 'Time (Prague): ', value: pragueTime, inline: true },
+          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: true },
         ],
-        timestamp: new Date().toISOString(),*/
       },
     ],
   });
@@ -251,7 +250,7 @@ async function notifyChatTrigger(nick, text) {
 async function notifyWaitingTable(table, waitedSeconds) {
   const hernaLink = `${state.activeOrigin}/cz/herna`;
   const waitedMin = Math.floor(waitedSeconds / 60);
-  const ratedLabel = table.isRated ? '🔴 Bodovaná' : '🟢 Přátelská';
+  const ratedLabel = table.isRated ? '🔴 Rated 🔴' : '🟢 Friendly 🟢';
   const color = table.isRated ? 0xe74c3c : 0x2ecc71;
 
   console.log(
@@ -262,18 +261,17 @@ async function notifyWaitingTable(table, waitedSeconds) {
     roleId: CONFIG.tablePingRoleId,
     embeds: [
       {
-        title: 'Somebody is desperately waiting for an opponent!',
-        /*title: `🪑 Hráč čeká u stolu #${table.id}`,
-        color,
+        title: 'Somebody is waiting desperately!',
+        // ${table.id}
+        color: 16777215,
         fields: [
-          { name: 'Nick', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
-          { name: 'Typ hry', value: table.gamestyle, inline: true },
-          { name: 'Čas + Fischer', value: table.timeControl, inline: true },
-          { name: 'Režim', value: ratedLabel, inline: true },
-          { name: 'Čeká již', value: `${waitedMin}+ min`, inline: true },
-          { name: 'Herna', value: `[Připojit se](${hernaLink})`, inline: true },
+          { name: 'Nick: ', value: '**${escapeDiscordMd(table.soloNick)}**', inline: true },
+          { name: 'Game Type: ', value: table.gamestyle, inline: true },
+          { name: 'Time + Fischer: ', value: table.timeControl, inline: true },
+          { name: 'Mode: ', value: ratedLabel, inline: true },
+          { name: 'Waiting already: ', value: `${waitedMin}+ min`, inline: true },
+          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: true },
         ],
-        timestamp: new Date().toISOString(),*/
       },
     ],
   });
