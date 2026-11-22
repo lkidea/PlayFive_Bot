@@ -264,12 +264,12 @@ async function notifyWaitingTable(table, waitedSeconds) {
         // ${table.id}
         color: 16777215,
         fields: [
-          { name: 'Nick: ', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
-          { name: 'Game Type: ', value: table.gamestyle, inline: false },
-          { name: 'Time + Fischer: ', value: table.timeControl, inline: true },
-          { name: 'Mode: ', value: ratedLabel, inline: false },
-          { name: 'Waiting already: ', value: `${waitedMin}+ min`, inline: true },
-          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: false },
+          { name: 'Nick: ', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: false },
+          { name: 'Game Type: ', value: table.gamestyle, inline: true },
+          { name: 'Time + Fischer: ', value: table.timeControl, inline: false },
+          { name: 'Mode: ', value: ratedLabel, inline: true },
+          { name: 'Waiting already: ', value: `${waitedMin}+ min`, inline: false },
+          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: true },
         ],
       },
     ],
