@@ -261,13 +261,14 @@ async function notifyWaitingTable(table, waitedSeconds) {
         title: 'Somebody is waiting desperately!',
         // ${table.id}
         color: 16777215,
-        fields: [
-          { name: 'Nick: ', value: `**${escapeDiscordMd(table.soloNick)}**`, inline: true },
-          { name: 'Game Type: ', value: table.gamestyle, inline: true },
-          { name: 'Time + Fischer: ', value: table.timeControl, inline: false },
-          { name: 'Mode: ', value: ratedLabel, inline: true },
+        description: `- **WHO:**⠀ ${escapeDiscordMd(table.soloNick)}\n- **GAME TYPE:**⠀ ${table.gamestyle}\n- **TIME+FISCHER:**⠀ ${table.timeControl}\n- **MODE:**⠀ ${ratedLabel}\n⠀\n-# [Join Gameroom](${hernaLink})`.            
+        /*fields: [
+          { name: 'Nick: ', value: `****`, inline: true },
+          { name: 'Game Type: ', value: , inline: true },
+          { name: 'Time + Fischer: ', value: , inline: false },
+          { name: 'Mode: ', value: , inline: true },
           //${waitedMin}
-          { name: '', value: `[Join Gameroom](${hernaLink})`, inline: true },
+          { name: '', value: `[Join Gameroom]()`, inline: true },*/
         ],
       },
     ],
