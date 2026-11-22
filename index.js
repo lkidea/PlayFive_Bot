@@ -24,7 +24,7 @@ const CONFIG = {
   tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || '1573748305492574382').trim(),
 
   // Main chat monitor settings
-  chatTrigger: (process.env.CHAT_TRIGGER || 'Discord notif pls')
+  chatTrigger: (process.env.CHAT_TRIGGER || 'GCnotifpls')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase(),
@@ -234,12 +234,10 @@ async function notifyChatTrigger(nick, text) {
     roleId: CONFIG.chatPingRoleId,
     embeds: [
       {
+        //pragueTime
         title: 'Somebody wants you to wake up!',
-        description: `-# **${safeNick}:** ${safeText}`,
+        description: `- **WHO:**⠀ ${safeNick}\n- **MESSAGE:**⠀ ${safeText}\n⠀\n-# [Join Gameroom](${hernaLink})`,
         color: 1,
-        fields: [
-          { name: 'Time (Prague): ', value: pragueTime, inline: true },
-          { name: 'Gameroom ', value: `[Join](${hernaLink})`, inline: true },
         ],
       },
     ],
