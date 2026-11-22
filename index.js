@@ -238,7 +238,6 @@ async function notifyChatTrigger(nick, text) {
         title: 'Somebody wants you to wake up!',
         description: `- **WHO:**⠀ ${safeNick}\n- **MESSAGE:**⠀ ${safeText}\n⠀\n-# [Join Gameroom](${hernaLink})`,
         color: 1,
-        ],
       },
     ],
   });
@@ -261,7 +260,7 @@ async function notifyWaitingTable(table, waitedSeconds) {
         title: 'Somebody is waiting desperately!',
         // ${table.id}
         color: 16777215,
-        description: `- **WHO:**⠀ ${escapeDiscordMd(table.soloNick)}\n- **GAME TYPE:**⠀ ${table.gamestyle}\n- **TIME+FISCHER:**⠀ ${table.timeControl}\n- **MODE:**⠀ ${ratedLabel}\n⠀\n-# [Join Gameroom](${hernaLink})`.            
+        description: `- **WHO:**⠀ ${escapeDiscordMd(table.soloNick)}\n- **GAME TYPE:**⠀ ${table.gamestyle}\n- **TIME+FISCHER:**⠀ ${table.timeControl}\n- **MODE:**⠀ ${ratedLabel}\n⠀\n-# [Join Gameroom](${hernaLink})`,
         /*fields: [
           { name: 'Nick: ', value: `****`, inline: true },
           { name: 'Game Type: ', value: , inline: true },
