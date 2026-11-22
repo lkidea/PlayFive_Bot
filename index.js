@@ -268,8 +268,8 @@ async function notifyWaitingTable(table, waitedSeconds) {
           { name: 'Time + Fischer: ', value: , inline: false },
           { name: 'Mode: ', value: , inline: true },
           //${waitedMin}
-          { name: '', value: `[Join Gameroom]()`, inline: true },*/
-        ],
+          { name: '', value: `[Join Gameroom]()`, inline: true },
+        ],*/
       },
     ],
   });
