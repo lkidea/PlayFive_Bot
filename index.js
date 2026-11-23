@@ -574,7 +574,17 @@ async function evaluateWaitingTables() {
 
   try {
     const now = Date.now();
+    const bruteWindowMs = CONFIG.tableUserCooldownMs * 4;
     const activeSoloKeys = new Set();
+
+    const getNickRecord = (soloLower) => {
+      let rec = state.tableAlertStateByNick.get(soloLower);
+      if (!rec) {
+        rec = { lastFirstAlertAt: 0, recentPingAlerts: [], bruteCooldownUntil: 0 };
+        state.tableAlertStateByNick.set(soloLower, rec);
+      }
+      return rec;
+    };
 
     for (const table of state.tables.values()) {
       if (table.isPrivate) continue; // Ignore soukromý tables
@@ -595,7 +605,13 @@ async function evaluateWaitingTables() {
       let entry = state.waitingSolo.get(key);
 
       if (!entry) {
-        entry = { firstSeen: now, notified: false, table: snapshot };
+        entry = {
+          firstSeen: now,
+          firstNotifiedAt: null, // null = not sent yet, >0 = sent timestamp, -1 = permanently skipped for this sit
+          pingNotified: false,
+          suppressedLogged: false,
+          table: snapshot,
+        };
         state.waitingSolo.set(key, entry);
         console.log(
           `[TABLE] Tracking solo player: #${table.id} ${soloNick} (${table.gamestyle}, ${table.timeControl}, ${table.isRated ? 'bodovaná' : 'přátelská'})`
@@ -606,15 +622,84 @@ async function evaluateWaitingTables() {
       }
 
       const waitedMs = now - entry.firstSeen;
-      if (!entry.notified && waitedMs >= CONFIG.waitThresholdMs) {
-        entry.notified = true;
 
-        const lastAlertAt = state.lastTableAlertByNick.get(soloLower) || 0;
-        if (now - lastAlertAt >= CONFIG.tableUserCooldownMs) {
-          state.lastTableAlertByNick.set(soloLower, now);
-          await notifyWaitingTable(entry.table, Math.floor(waitedMs / 1000));
+      // Stage 1: First (non-ping) notification after earlyWaitThresholdMs (default 30s)
+      if (entry.firstNotifiedAt === null && waitedMs >= CONFIG.earlyWaitThresholdMs) {
+        const rec = getNickRecord(soloLower);
+
+        // 1a. Active 5-hour brute cooldown -> mute this entire sit so it won't fire 5h later
+        if (now < rec.bruteCooldownUntil) {
+          const minsLeft = Math.ceil((rec.bruteCooldownUntil - now) / 60_000);
+          console.log(
+            `[TABLE] First alert for ${soloNick} (#${table.id}) suppressed by brute cooldown (${minsLeft}m left).`
+          );
+          entry.firstNotifiedAt = -1;
+          continue;
+        }
+
+        // 1b. Normal per-user cooldown -> wait until cooldown expires if they remain seated
+        if (now - rec.lastFirstAlertAt < CONFIG.tableUserCooldownMs) {
+          if (!entry.suppressedLogged) {
+            console.log(
+              `[TABLE] First alert for ${soloNick} (#${table.id}) suppressed by per-user cooldown.`
+            );
+            entry.suppressedLogged = true;
+          }
+          continue;
+        }
+
+        // 1c. Send first (non-ping) notification; only start cooldown + ping timer if Discord accepted it
+        const sent = await notifyEarlyWaitingTable(entry.table, Math.floor(waitedMs / 1000));
+        if (state.status !== 'ONLINE') return;
+
+        if (sent) {
+          const sentAt = Date.now();
+          rec.lastFirstAlertAt = sentAt;
+          entry.firstNotifiedAt = sentAt;
         } else {
-          console.log(`[TABLE] Alert for ${soloNick} (#${table.id}) suppressed by per-user cooldown.`);
+          entry.firstNotifiedAt = -1;
+          console.warn(
+            `[TABLE] First alert for ${soloNick} (#${table.id}) failed to deliver; ping alert skipped for this sit.`
+          );
+        }
+        continue;
+      }
+
+      // Stage 2: Second (ping) notification after pingMessageTimeDelayIncrementMs (default 180s)
+      // Only fires if the first notification WAS sent and the player is still sitting alone here.
+      if (
+        typeof entry.firstNotifiedAt === 'number' &&
+        entry.firstNotifiedAt > 0 &&
+        !entry.pingNotified &&
+        now - entry.firstNotifiedAt >= CONFIG.pingMessageTimeDelayIncrementMs
+      ) {
+        const rec = getNickRecord(soloLower);
+
+        // Defensive check in case brute cooldown is already active
+        if (now < rec.bruteCooldownUntil) {
+          entry.pingNotified = true;
+          continue;
+        }
+
+        // Brute cooldown trigger: instead of sending a 3rd ping alert within cooldown * 4
+        rec.recentPingAlerts = rec.recentPingAlerts.filter((ts) => now - ts <= bruteWindowMs);
+
+        if (CONFIG.tableBruteCooldownMs > 0 && rec.recentPingAlerts.length >= 2) {
+          rec.bruteCooldownUntil = now + CONFIG.tableBruteCooldownMs;
+          rec.recentPingAlerts = [];
+          entry.pingNotified = true;
+          console.log(
+            `[TABLE] Brute cooldown (${(CONFIG.tableBruteCooldownMs / 3600_000).toFixed(1)}h) triggered for ${soloNick} (#${table.id}) instead of 3rd ping alert within ${Math.round(bruteWindowMs / 60_000)}m.`
+          );
+          continue;
+        }
+
+        entry.pingNotified = true;
+        const sent = await notifyWaitingTable(entry.table, Math.floor(waitedMs / 1000));
+        if (state.status !== 'ONLINE') return;
+
+        if (sent) {
+          rec.recentPingAlerts.push(Date.now());
         }
       }
     }
@@ -627,17 +712,22 @@ async function evaluateWaitingTables() {
       }
     }
 
-    // Periodically prune old cooldown entries so Map never grows unbounded
-    if (state.lastTableAlertByNick.size > 200) {
-      const cutoff = now - Math.max(CONFIG.tableUserCooldownMs, 3600_000);
-      for (const [k, ts] of state.lastTableAlertByNick.entries()) {
-        if (ts < cutoff) state.lastTableAlertByNick.delete(k);
+    // Periodically prune old entries without dropping active cooldowns or brute windows
+    if (state.tableAlertStateByNick.size > 200) {
+      for (const [k, rec] of state.tableAlertStateByNick.entries()) {
+        const bruteActive = rec.bruteCooldownUntil > now;
+        const normalActive = now - rec.lastFirstAlertAt < CONFIG.tableUserCooldownMs;
+        const hasRecentPings = rec.recentPingAlerts.some((ts) => now - ts <= bruteWindowMs);
+        if (!bruteActive && !normalActive && !hasRecentPings) {
+          state.tableAlertStateByNick.delete(k);
+        }
       }
     }
   } finally {
     evaluatingTables = false;
   }
 }
+
 
 // ============================================================================
 // Pure RFC 7395 XMPP-over-WebSocket Client (Zero Browser)
