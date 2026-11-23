@@ -110,10 +110,12 @@ const state = {
   lastChatAlertAt: 0,
   // Map<number, TableInfo>
   tables: new Map(),
-  // Map<string, { firstSeen: number, notified: boolean, table: TableInfo }>
+  
+  // Map<string, { firstSeen: number, firstNotifiedAt: number|null, pingNotified: boolean, suppressedLogged: boolean, table: TableInfo }>
   waitingSolo: new Map(),
-  // Map<string, number> (nickLower -> last table alert timestamp)
-  lastTableAlertByNick: new Map(),
+  // Map<string, { lastFirstAlertAt: number, recentPingAlerts: number[], bruteCooldownUntil: number }>
+  tableAlertStateByNick: new Map(),
+  
 };
 
 let activeWs = null;
