@@ -243,6 +243,26 @@ async function notifyChatTrigger(nick, text) {
   });
 }
 
+async function notifyEarlyWaitingTable(table, waitedSeconds) {
+  const hernaLink = `${state.activeOrigin}/cz/herna`;
+  const ratedLabel = table.isRated ? '🔴 Rated 🔴' : '🟢 Friendly 🟢';
+
+  console.log(
+    `[ALERT:TABLE:FIRST] #${table.id} | ${table.soloNick} | ${table.gamestyle} | ${table.timeControl} | ${ratedLabel} (${waitedSeconds}s)`
+  );
+
+  return sendDiscordWebhook(CONFIG.webhookTableEarly, {
+    roleId: CONFIG.tableEarlyPingRoleId, // Empty by default -> no ping
+    embeds: [
+      {
+        title: 'Somebody is looking for a game!',
+        color: 0x95a5a6,
+        description: `- **WHO:**⠀ ${escapeDiscordMd(table.soloNick)}\n- **GAME TYPE:**⠀ ${table.gamestyle}\n- **TIME+FISCHER:**⠀ ${table.timeControl}\n- **MODE:**⠀ ${ratedLabel}\n⠀\n-# [Join Gameroom](${hernaLink})`,
+      },
+    ],
+  });
+}
+
 async function notifyWaitingTable(table, waitedSeconds) {
   const hernaLink = `${state.activeOrigin}/cz/herna`;
   const waitedMin = Math.floor(waitedSeconds / 60);
@@ -250,10 +270,10 @@ async function notifyWaitingTable(table, waitedSeconds) {
   const color = table.isRated ? 0xe74c3c : 0x2ecc71;
 
   console.log(
-    `[ALERT:TABLE] #${table.id} | ${table.soloNick} | ${table.gamestyle} | ${table.timeControl} | ${ratedLabel}`
+    `[ALERT:TABLE:PING] #${table.id} | ${table.soloNick} | ${table.gamestyle} | ${table.timeControl} | ${ratedLabel} (${waitedSeconds}s)`
   );
 
-  await sendDiscordWebhook(CONFIG.webhookTable, {
+  return sendDiscordWebhook(CONFIG.webhookTable, {
     roleId: CONFIG.tablePingRoleId,
     embeds: [
       {
