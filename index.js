@@ -35,7 +35,7 @@ const CONFIG = {
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase(),
-  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 600) * 1000,
+  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 900) * 1000,
   ignoreSelfChat: (process.env.IGNORE_SELF_CHAT || 'false').toLowerCase() === 'true',
   ignoreGuestChat: (process.env.IGNORE_GUEST_CHAT || 'true').toLowerCase() === 'true',
   
