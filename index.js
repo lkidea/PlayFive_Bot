@@ -16,12 +16,19 @@ const CONFIG = {
   username: (process.env.PLAYFIVE_USERNAME || '').trim(),
   password: process.env.PLAYFIVE_PASSWORD || '',
 
-  // Two separate Discord webhooks
+  // Discord webhooks
   webhookChat: (process.env.DISCORD_WEBHOOK_CHAT || '').trim(),
   webhookTable: (process.env.DISCORD_WEBHOOK_TABLE || '').trim(),
+  // Optional: separate webhook for the first (non-ping) table notice; defaults to webhookTable
+  webhookTableEarly: (process.env.DISCORD_WEBHOOK_TABLE || '').trim(), //DISCORD_WEBHOOK_TABLE_EARLY kdyby se lišil
+
   // Optional: Discord Role IDs (digits only) to ping safely
   chatPingRoleId: (process.env.DISCORD_CHAT_PING_ROLE_ID || '1573748305492574382').trim(),
   tablePingRoleId: (process.env.DISCORD_TABLE_PING_ROLE_ID || '1573748305492574382').trim(),
+  tableEarlyPingRoleId: (process.env.DISCORD_TABLE_EARLY_PING_ROLE_ID || '').trim(),
+
+
+  
 
   // Main chat monitor settings
   chatTrigger: (process.env.CHAT_TRIGGER || 'GCnotifpls')
@@ -34,8 +41,13 @@ const CONFIG = {
   
 
   // Solo waiting table monitor settings
-  waitThresholdMs: Number(process.env.WAIT_THRESHOLD_SECONDS || 180) * 1000, // 3 minutes
-  tableUserCooldownMs: Number(process.env.TABLE_COOLDOWN_SECONDS || 300) * 1000, // 5 minutes per nick
+  earlyWaitThresholdMs: Number(process.env.EARLY_WAIT_THRESHOLD_SECONDS || 30) * 1000, // 30s -> first (non-ping) notice
+  pingMessageTimeDelayIncrementMs:
+    Number(process.env.PING_MESSAGE_TIME_DELAY_INCREMENT || 180) * 1000, // 180s after first notice -> ping notice
+  tableUserCooldownMs: Number(process.env.TABLE_COOLDOWN_SECONDS || 900) * 1000, // 15m per nick (triggered by first notice)
+  tableBruteCooldownMs: Number(process.env.TABLE_BRUTE_COOLDOWN_HOURS || 5) * 3600 * 1000, // 5h AFK cooldown (0 = disabled)
+
+  
   ignoredNicks: new Set(
     (process.env.IGNORED_NICKS || 'xobot')
       .split(',')
