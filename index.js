@@ -1104,12 +1104,12 @@ function runXmppSession(pepa) {
               } catch {}
             }, 45_000);
 
-            // Evaluate solo waiting timers every 5s
+            // Evaluate solo waiting timers every 7s
             tableCheckTimer = setInterval(() => {
               evaluateWaitingTables().catch((err) =>
                 console.error('[TABLE] Evaluation error:', err.message)
               );
-            }, 5000);
+            }, 7000);
           }
         }
         return;
