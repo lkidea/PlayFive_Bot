@@ -269,8 +269,8 @@ async function notifyEarlyWaitingTable(table, waitedSeconds) {
     roleId: CONFIG.tableEarlyPingRoleId, // Empty by default -> no ping
     embeds: [
       {
-        title: 'Somebody is looking for a game!',
-        color: 0x95a5a6,
+        title: 'Somebody is waiting!',
+        color: 0xa10256,
         description: `- **WHO:**⠀ ${escapeDiscordMd(table.soloNick)}\n- **GAME TYPE:**⠀ ${table.gamestyle}\n- **TIME+FISCHER:**⠀ ${table.timeControl}\n- **MODE:**⠀ ${ratedLabel}\n⠀\n-# [Join Gameroom](${hernaLink})`,
       },
     ],
