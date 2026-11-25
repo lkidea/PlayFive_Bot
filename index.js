@@ -35,7 +35,7 @@ const CONFIG = {
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase(),
-  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 900) * 1000,
+  chatCooldownMs: Number(process.env.CHAT_COOLDOWN_SECONDS || 1200) * 1000,
   ignoreSelfChat: (process.env.IGNORE_SELF_CHAT || 'false').toLowerCase() === 'true',
   ignoreGuestChat: (process.env.IGNORE_GUEST_CHAT || 'true').toLowerCase() === 'true',
   
@@ -43,7 +43,7 @@ const CONFIG = {
   // Solo waiting table monitor settings
   earlyWaitThresholdMs: Number(process.env.EARLY_WAIT_THRESHOLD_SECONDS || 30) * 1000, // 30s -> first (non-ping) notice
   pingMessageTimeDelayIncrementMs:
-    Number(process.env.PING_MESSAGE_TIME_DELAY_INCREMENT || 180) * 1000, // 180s after first notice -> ping notice
+    Number(process.env.PING_MESSAGE_TIME_DELAY_INCREMENT || 210) * 1000, // 180s after first notice -> ping notice
   tableUserCooldownMs: Number(process.env.TABLE_COOLDOWN_SECONDS || 900) * 1000, // 15m per nick (triggered by first notice)
   tableBruteCooldownMs: Number(process.env.TABLE_BRUTE_COOLDOWN_HOURS || 5) * 3600 * 1000, // 5h AFK cooldown (0 = disabled)
 
