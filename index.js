@@ -96,6 +96,10 @@ if (!CONFIG.webhookChat || !CONFIG.webhookTable) {
 if (CONFIG.reconnectBackoffMinutes.length === 0) {
   CONFIG.reconnectBackoffMinutes = [60];
 }
+if (CONFIG.crowdThresholds.length === 0) {
+  CONFIG.crowdThresholds = [7, 15, 20, 30];
+}
+
 
 // Never track the bot's own account at a table
 CONFIG.ignoredNicks.add(CONFIG.username.toLowerCase());
@@ -147,12 +151,28 @@ const state = {
   waitingSolo: new Map(),
   // Map<string, { lastFirstAlertAt: number, recentPingAlerts: number[], bruteCooldownUntil: number }>
   tableAlertStateByNick: new Map(),
+
+  disconnectedAt: null,
+  // Set<string> of lowercase nicks currently present in the MUC room
+  onlinePlayers: new Set(),
+  // Crowd mode state (disables solo table tracking & tracks peak online count)
+  crowd: {
+    active: false,
+    aboveSince: null,
+    belowSince: null,
+    highestNotifiedThreshold: 0,
+    peakOnline: 0,
+  },
+  
   
 };
 
 let activeWs = null;
 let shuttingDown = false;
 let evaluatingTables = false;
+
+let evaluatingCrowd = false;
+
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -170,6 +190,11 @@ const server = http.createServer((req, res) => {
       connectedSince: state.connectedAt ? new Date(state.connectedAt).toISOString() : null,
       activeTables: state.tables.size,
       trackedSoloTables: state.waitingSolo.size,
+
+      onlinePlayers: getActiveOnlineCount(),
+      crowdModeActive: state.crowd.active,
+      crowdPeakOnline: state.crowd.peakOnline,
+
       nextRetryAt: state.nextRetryAt ? new Date(state.nextRetryAt).toISOString() : null,
       lastError: state.lastError,
       memoryMB: Math.round(process.memoryUsage().rss / 1024 / 1024),
@@ -327,6 +352,46 @@ async function notifyWaitingTable(table, waitedSeconds) {
     ],
   });
 }
+
+async function notifyCrowdThreshold(threshold, currentCount) {
+  const hernaLink = `${state.activeOrigin}/cz/herna`;
+
+  console.log(
+    `[ALERT:CROWD:UP] Threshold ${threshold}+ reached (${currentCount} active players online).`
+  );
+
+  return sendDiscordWebhook(CONFIG.webhookCrowd, {
+    roleId: CONFIG.crowdPingRoleId,
+    embeds: [
+      {
+        title: `${threshold} or more players are active!`,
+        color: 0xf1c40f,
+        description: `There are currently **${currentCount}** players online in Herna — go and check it out!\n⠀\n-# Table seat alerts are paused while Herna is busy.\n-# [Join Gameroom](${hernaLink})`,
+      },
+    ],
+  });
+}
+
+async function notifyCrowdEnded(peakOnline, currentCount) {
+  const hernaLink = `${state.activeOrigin}/cz/herna`;
+  const minThreshold = CONFIG.crowdThresholds[0];
+
+  console.log(
+    `[ALERT:CROWD:END] Dropped below ${minThreshold} (${currentCount} online). Peak reached: ${peakOnline}.`
+  );
+
+  return sendDiscordWebhook(CONFIG.webhookCrowd, {
+    roleId: '', // No ping when activity dies down
+    embeds: [
+      {
+        title: 'Herna has quieted down',
+        color: 0x95a5a6,
+        description: `Online count dropped below **${minThreshold}** (currently **${currentCount}**).\n- **PEAK ONLINE:**⠀ **${peakOnline}** players at the same time\n⠀\n-# Solo table seat tracking is now active again.\n-# [Join Gameroom](${hernaLink})`,
+      },
+    ],
+  });
+}
+
 
 // ============================================================================
 // Pure HTTP Login for Registered Account (Zero Browser)
