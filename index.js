@@ -47,6 +47,26 @@ const CONFIG = {
   tableUserCooldownMs: Number(process.env.TABLE_COOLDOWN_SECONDS || 900) * 1000, // 15m per nick (triggered by first notice)
   tableBruteCooldownMs: Number(process.env.TABLE_BRUTE_COOLDOWN_HOURS || 5) * 3600 * 1000, // 5h AFK cooldown (0 = disabled)
 
+  // Online player crowd monitor settings
+  // Optional separate webhook/role; falls back to your existing table webhook & ping role
+  webhookCrowd:
+    (process.env.DISCORD_WEBHOOK_CROWD || '').trim() ||
+    (process.env.DISCORD_WEBHOOK_TABLE || '').trim(),
+  crowdPingRoleId:
+    (process.env.DISCORD_CROWD_PING_ROLE_ID || '').trim() ||
+    (process.env.DISCORD_TABLE_PING_ROLE_ID || '1573748305492574382').trim(),
+  // First value turns off table tracking & triggers the initial ping; higher values send escalated pings
+  crowdThresholds: (process.env.CROWD_THRESHOLDS || '7,15,20,30')
+    .split(',')
+    .map((n) => parseInt(n.trim(), 10))
+    .filter((n) => !Number.isNaN(n) && n > 0)
+    .sort((a, b) => a - b),
+  // Seconds count must stay >= first threshold before sending the initial ping (avoids quick join/leave spam)
+  crowdStartDelayMs: Number(process.env.CROWD_START_DELAY_SECONDS || 15) * 1000,
+  // Seconds count must stay < first threshold before ending crowd mode & posting the peak summary
+  crowdEndGraceMs: Number(process.env.CROWD_END_GRACE_SECONDS || 60) * 1000,
+
+
   
   ignoredNicks: new Set(
     (process.env.IGNORED_NICKS || 'xobot')
